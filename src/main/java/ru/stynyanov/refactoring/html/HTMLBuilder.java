@@ -19,7 +19,7 @@ public class HTMLBuilder {
     }
 
     public String build() {
-        stringBuilder.append("</html></body>\n");
+        stringBuilder.append("</body></html>");
         return stringBuilder.toString();
     }
 }

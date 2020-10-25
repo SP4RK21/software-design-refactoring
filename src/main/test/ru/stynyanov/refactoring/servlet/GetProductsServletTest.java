@@ -2,49 +2,47 @@ package ru.stynyanov.refactoring.servlet;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import ru.stynyanov.refactoring.database.DatabaseManager;
+import ru.stynyanov.refactoring.product.Product;
+import ru.stynyanov.refactoring.product.ProductsDBManager;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class GetProductsServletTest {
 
     @Test
     public void getProductTest() throws Exception {
-        DatabaseManager dbManager = mock(DatabaseManager.class);
-        HttpServletRequest addRequest = mock(HttpServletRequest.class);
-        HttpServletRequest getRequest = mock(HttpServletRequest.class);
-        HttpServletResponse addResponse = mock(HttpServletResponse.class);
-        HttpServletResponse getResponse = mock(HttpServletResponse.class);
+        Product testProduct1 = new Product("iPhone 12 Pro", 99990);
+        Product testProduct2 = new Product("iPhone 12 Pro Max", 109990);
+        ProductsDBManager dbManager = mock(ProductsDBManager.class);
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
         ArgumentCaptor<Integer> responseStatus = ArgumentCaptor.forClass(Integer.class);
 
-        final String productName = "iPhone 12 Pro";
-        final String productPrice = "99990";
-        when(addRequest.getParameter("name")).thenReturn(productName);
-        when(addRequest.getParameter("price")).thenReturn(productPrice);
+        when(dbManager.getAllProducts()).thenReturn(Arrays.asList(testProduct1, testProduct2));
 
-        StringWriter addStringWriter = new StringWriter();
-        PrintWriter addRequestWriter = new PrintWriter(addStringWriter);
-        when(addResponse.getWriter()).thenReturn(addRequestWriter);
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        when(response.getWriter()).thenReturn(writer);
 
-        StringWriter getStringWriter = new StringWriter();
-        PrintWriter getRequestWriter = new PrintWriter(getStringWriter);
-        when(getResponse.getWriter()).thenReturn(getRequestWriter);
+        new GetProductsServlet(dbManager).doGet(request, response);
 
-        new AddProductServlet(dbManager).doGet(addRequest, addResponse);
-        new GetProductsServlet(dbManager).doGet(getRequest, getResponse);
-
-        verify(getResponse).setStatus(responseStatus.capture());
-        addRequestWriter.flush();
-        assertTrue(getStringWriter.toString().startsWith("<html><body>"));
-        assertTrue(getStringWriter.toString().endsWith("</body></html>\n"));
-        assertTrue(getStringWriter.toString().contains(productName + "\t" + productPrice));
+        verify(response).setStatus(responseStatus.capture());
+        writer.flush();
+        String expected = String.format(
+                "<html><body>\n" +
+                "%s\t%d</br>\n" +
+                "%s\t%d</br>\n" +
+                "</body></html>",
+                testProduct1.name, testProduct1.price,
+                testProduct2.name, testProduct2.price);
+        assertEquals(expected, stringWriter.toString());
 
         assertEquals((Integer) HttpServletResponse.SC_OK, responseStatus.getValue());
     }
