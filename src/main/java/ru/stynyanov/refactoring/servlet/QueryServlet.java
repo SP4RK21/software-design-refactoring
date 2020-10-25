@@ -5,8 +5,11 @@ import ru.stynyanov.refactoring.product.Product;
 import ru.stynyanov.refactoring.product.ProductsDBManager;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 
 public class QueryServlet extends CommonProductServlet {
+
+    private static final String[] SUPPORTED_COMMANDS = {"max", "min", "sum", "count"};
 
     public QueryServlet(ProductsDBManager databaseManager) {
         super(databaseManager);
@@ -16,16 +19,33 @@ public class QueryServlet extends CommonProductServlet {
         String command = request.getParameter("command");
         HTMLBuilder htmlBuilder = new HTMLBuilder();
         htmlBuilder.addHeader(htmlTitleForCommand(command));
+        if (!Arrays.asList(SUPPORTED_COMMANDS).contains(command)) {
+            return htmlBuilder.build();
+        }
 
-        if (command.equals("min") || command.equals("max")) {
-            Product product = databaseManager.getProductResultForCommand(command);
-            if (product != null) {
-                htmlBuilder.addTextWithNewLine(product.name + "\t" + product.price);
-            } else {
-                htmlBuilder.addTextWithNewLine("No products in database");
-            }
+        Integer numericRes = null;
+        Product productRes = null;
+        switch (command) {
+            case "sum":
+                numericRes = databaseManager.getPricesSum();
+                break;
+            case "count":
+                numericRes = databaseManager.getProductsCount();
+                break;
+            case "max":
+                productRes = databaseManager.getMaxPriceProduct();
+                break;
+            case "min":
+                productRes = databaseManager.getMinPriceProduct();
+                break;
+        }
+
+        if (numericRes != null) {
+            htmlBuilder.addTextWithNewLine(String.valueOf(numericRes));
+        } else if (productRes != null) {
+            htmlBuilder.addTextWithNewLine(productRes.name + "\t" + productRes.price);
         } else {
-            htmlBuilder.addTextWithNewLine(String.valueOf(databaseManager.getNumericResultForCommand(command)));
+            htmlBuilder.addTextWithNewLine("No products in database");
         }
 
         return htmlBuilder.build();

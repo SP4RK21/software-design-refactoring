@@ -19,7 +19,7 @@ public class ProductsDBManager extends DatabaseManager {
     }
 
     public void addProduct(Product product) {
-        String sql = String.format("INSERT INTO PRODUCT (NAME, PRICE) VALUES (\"%s\", \"%d\")", product.name, product.price );
+        String sql = String.format("INSERT INTO PRODUCT (NAME, PRICE) VALUES (\"%s\", \"%d\")", product.name, product.price);
         executeDatabaseUpdate(sql);
     }
 
@@ -35,8 +35,24 @@ public class ProductsDBManager extends DatabaseManager {
         });
     }
 
-    public Product getProductResultForCommand(String command) {
-        return executeDatabaseQuery(sqlQueryForCommand(command), rs -> {
+    public Product getMaxPriceProduct() {
+        return getProductResultForCommand("SELECT * FROM PRODUCT ORDER BY PRICE DESC LIMIT 1");
+    }
+
+    public Product getMinPriceProduct() {
+        return getProductResultForCommand("SELECT * FROM PRODUCT ORDER BY PRICE LIMIT 1");
+    }
+
+    public int getPricesSum() {
+        return getNumericResultForCommand("SELECT SUM(price) FROM PRODUCT");
+    }
+
+    public int getProductsCount() {
+        return getNumericResultForCommand("SELECT COUNT(*) FROM PRODUCT");
+    }
+
+    private Product getProductResultForCommand(String sqlCommand) {
+        return executeDatabaseQuery(sqlCommand, rs -> {
             if (rs.next()) {
                 return new Product(rs.getString("name"), rs.getInt("price"));
             }
@@ -45,28 +61,13 @@ public class ProductsDBManager extends DatabaseManager {
         });
     }
 
-    public int getNumericResultForCommand(String command) {
-        return executeDatabaseQuery(sqlQueryForCommand(command), rs -> {
+    private int getNumericResultForCommand(String sqlCommand) {
+        return executeDatabaseQuery(sqlCommand, rs -> {
             if (rs.next()) {
                 return rs.getInt(1);
             }
 
             return 0;
         });
-    }
-
-    private String sqlQueryForCommand(String command) {
-        switch (command) {
-            case "sum":
-                return "SELECT SUM(price) FROM PRODUCT";
-            case "max":
-                return "SELECT * FROM PRODUCT ORDER BY PRICE DESC LIMIT 1";
-            case "min":
-                return "SELECT * FROM PRODUCT ORDER BY PRICE LIMIT 1";
-            case "count":
-                return "SELECT COUNT(*) FROM PRODUCT";
-            default:
-                throw new RuntimeException("Unknown command: " + command);
-        }
     }
 }

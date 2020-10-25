@@ -9,7 +9,7 @@ public class DatabaseManager {
         this.connectionURL = connectionURL;
     }
 
-    protected void executeDatabaseUpdate(String sqlUpdateRequest) {
+    public void executeDatabaseUpdate(String sqlUpdateRequest) {
         try {
             try (Connection c = DriverManager.getConnection(connectionURL)) {
                 Statement stmt = c.createStatement();
@@ -21,7 +21,7 @@ public class DatabaseManager {
         }
     }
 
-    protected <T> T executeDatabaseQuery(String sqlQueryRequest, ResultSetHandler<T> rsHandler) {
+    public <T> T executeDatabaseQuery(String sqlQueryRequest, ResultSetHandler<T> rsHandler) {
         T result;
         try {
             try (Connection c = DriverManager.getConnection(connectionURL)) {
