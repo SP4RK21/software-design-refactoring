@@ -1,9 +1,9 @@
 package ru.stynyanov.refactoring.servlet;
 
+import ru.stynyanov.refactoring.model.Product;
 import ru.stynyanov.refactoring.model.ProductsDBManager;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 public class QueryServlet extends CommonProductServlet {
 
@@ -13,9 +13,20 @@ public class QueryServlet extends CommonProductServlet {
 
     protected String executeRequest(HttpServletRequest request) {
         String command = request.getParameter("command");
-        List<String> products = databaseManager.getResultForCommand(command);
 
-        return "<html><body>\n" + htmlTitleForCommand(command) + String.join("\n", products) + "</body></html>\n";
+        String result;
+        if (command.equals("min") || command.equals("max")) {
+            Product product = databaseManager.getProductResultForCommand(command);
+            if (product != null) {
+                result = product.name + "\t" + product.price + "\n";
+            } else {
+                result = "No products in database";
+            }
+        } else {
+            result = String.valueOf(databaseManager.getNumericResultForCommand(command));
+        }
+
+        return "<html><body>\n" + htmlTitleForCommand(command) + result + "</body></html>\n";
     }
 
     private String htmlTitleForCommand(String command) {
@@ -32,5 +43,4 @@ public class QueryServlet extends CommonProductServlet {
                 return "Unknown command: " + command + "\n";
         }
     }
-
 }

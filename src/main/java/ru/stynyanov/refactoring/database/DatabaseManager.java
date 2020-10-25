@@ -1,7 +1,6 @@
 package ru.stynyanov.refactoring.database;
 
 import java.sql.*;
-import java.util.List;
 
 public class DatabaseManager {
     private final String connectionURL;
@@ -22,8 +21,8 @@ public class DatabaseManager {
         }
     }
 
-    protected List<String> executeDatabaseQuery(String sqlQueryRequest, ResultSetHandler rsHandler) {
-        List<String> result;
+    protected <T> T executeDatabaseQuery(String sqlQueryRequest, ResultSetHandler<T> rsHandler) {
+        T result;
         try {
             try (Connection c = DriverManager.getConnection(connectionURL)) {
                 Statement stmt = c.createStatement();

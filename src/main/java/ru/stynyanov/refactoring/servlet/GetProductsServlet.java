@@ -1,5 +1,6 @@
 package ru.stynyanov.refactoring.servlet;
 
+import ru.stynyanov.refactoring.model.Product;
 import ru.stynyanov.refactoring.model.ProductsDBManager;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,8 +13,14 @@ public class GetProductsServlet extends CommonProductServlet {
     }
 
     protected String executeRequest(HttpServletRequest request) {
-        List<String> products = databaseManager.getAllProducts();
+        List<Product> products = databaseManager.getAllProducts();
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("<html><body>\n");
+        for (Product product : products) {
+            stringBuilder.append(product.name).append("\t").append(product.price).append("\n");
+        }
+        stringBuilder.append("</body></html>\n");
 
-        return "<html><body>\n" + String.join("\n", products) + "</body></html>\n";
+        return stringBuilder.toString();
     }
 }

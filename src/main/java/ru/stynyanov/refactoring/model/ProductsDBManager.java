@@ -23,37 +23,34 @@ public class ProductsDBManager extends DatabaseManager {
         executeDatabaseUpdate(sql);
     }
 
-    public List<String> getAllProducts() {
+    public List<Product> getAllProducts() {
         return executeDatabaseQuery("SELECT * FROM PRODUCT", rs -> {
-            List<String> result = new ArrayList<>();
+            List<Product> result = new ArrayList<>();
             while (rs.next()) {
                 Product product = new Product(rs.getString("name"), rs.getInt("price"));
-
-                result.add(product.name + "\t" + product.price + "</br>\n");
+                result.add(product);
             }
 
             return result;
         });
     }
 
-    public List<String> getResultForCommand(String command) {
+    public Product getProductResultForCommand(String command) {
         return executeDatabaseQuery(sqlQueryForCommand(command), rs -> {
-            List<String> result = new ArrayList<>();
-            switch (command) {
-                case "sum":
-                case "count":
-                    if (rs.next()) {
-                        result.add(rs.getInt(1) + "\n");
-                    }
-                    break;
-                case "max":
-                case "min":
-                    while (rs.next()) {
-                        Product product = new Product(rs.getString("name"), rs.getInt("price"));
+            Product result = null;
+            if (rs.next()) {
+                result = new Product(rs.getString("name"), rs.getInt("price"));
+            }
 
-                        result.add(product.name + "\t" + product.price + "</br>\n");
-                    }
-                    break;
+            return result;
+        });
+    }
+
+    public int getNumericResultForCommand(String command) {
+        return executeDatabaseQuery(sqlQueryForCommand(command), rs -> {
+            int result = 0;
+            if (rs.next()) {
+                result = rs.getInt(1);
             }
 
             return result;
