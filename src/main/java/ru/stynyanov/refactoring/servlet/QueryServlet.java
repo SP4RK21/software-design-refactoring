@@ -1,49 +1,44 @@
 package ru.stynyanov.refactoring.servlet;
 
+import ru.stynyanov.refactoring.database.DatabaseManager;
+
 import javax.servlet.http.HttpServletRequest;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class QueryServlet extends CommonProductServlet {
 
+    public QueryServlet(DatabaseManager databaseManager) {
+        super(databaseManager);
+    }
+
     protected String executeRequest(HttpServletRequest request) {
-        StringBuilder stringBuilder = new StringBuilder("<html><body>\n");
         String command = request.getParameter("command");
-        try {
-            try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                Statement stmt = c.createStatement();
-                ResultSet rs = stmt.executeQuery(sqlQueryForCommand(command));
-                stringBuilder.append(htmlTitleForCommand(command));
 
-                switch (command) {
-                    case "sum":
-                    case "count":
-                        if (rs.next()) {
-                            stringBuilder.append(rs.getInt(1)).append("\n");
-                        }
-                        break;
-                    case "max":
-                    case "min":
-                        while (rs.next()) {
-                            String name = rs.getString("name");
-                            int price = rs.getInt("price");
+        List<String> products = databaseManager.executeDatabaseQuery(sqlQueryForCommand(command), rs -> {
+            List<String> result = new ArrayList<>();
+            switch (command) {
+                case "sum":
+                case "count":
+                    if (rs.next()) {
+                        result.add(rs.getInt(1) + "\n");
+                    }
+                    break;
+                case "max":
+                case "min":
+                    while (rs.next()) {
+                        String name = rs.getString("name");
+                        int price = rs.getInt("price");
 
-                            stringBuilder.append(name).append("\t").append(price).append("</br>\n");
-                        }
-                        break;
-                }
-
-                rs.close();
-                stmt.close();
+                        result.add(name + "\t" + price + "</br>\n");
+                    }
+                    break;
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
 
-        stringBuilder.append("</body></html>");
-        return stringBuilder.toString();
+            return result;
+        });
+
+        return "<html><body>\n" + htmlTitleForCommand(command) + String.join("\n", products) + "</body></html>\n";
     }
 
     private String sqlQueryForCommand(String command) {

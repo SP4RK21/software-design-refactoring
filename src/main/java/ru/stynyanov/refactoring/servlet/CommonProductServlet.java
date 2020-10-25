@@ -1,11 +1,19 @@
 package ru.stynyanov.refactoring.servlet;
 
+import ru.stynyanov.refactoring.database.DatabaseManager;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public abstract class CommonProductServlet extends HttpServlet {
+
+    final DatabaseManager databaseManager;
+
+    CommonProductServlet(DatabaseManager databaseManager) {
+        this.databaseManager = databaseManager;
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -16,6 +24,7 @@ public abstract class CommonProductServlet extends HttpServlet {
 
     /**
      * Method that executes a request and returns HTML string with result content
+     *
      * @param request request to process
      * @return HTML string with request result
      */

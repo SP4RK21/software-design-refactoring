@@ -1,38 +1,30 @@
 package ru.stynyanov.refactoring.servlet;
 
+import ru.stynyanov.refactoring.database.DatabaseManager;
+
 import javax.servlet.http.HttpServletRequest;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GetProductsServlet extends CommonProductServlet {
 
+    public GetProductsServlet(DatabaseManager databaseManager) {
+        super(databaseManager);
+    }
+
     protected String executeRequest(HttpServletRequest request) {
-        StringBuilder stringBuilder = new StringBuilder();
-        try {
-            try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                Statement stmt = c.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT * FROM PRODUCT");
-                stringBuilder.append("<html><body>\n");
+        List<String> products = databaseManager.executeDatabaseQuery("SELECT * FROM PRODUCT", rs -> {
+            List<String> result = new ArrayList<>();
+            while (rs.next()) {
+                String name = rs.getString("name");
+                int price = rs.getInt("price");
 
-                while (rs.next()) {
-                    String  name = rs.getString("name");
-                    int price  = rs.getInt("price");
-
-                    stringBuilder.append(name).append("\t").append(price).append("</br>\n");
-                }
-
-                stringBuilder.append("</body></html>\n");
-
-                rs.close();
-                stmt.close();
+                result.add(name + "\t" + price + "</br>\n");
             }
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+            return result;
+        });
 
-        return stringBuilder.toString();
+        return "<html><body>\n" + String.join("\n", products) + "</body></html>\n";
     }
 }

@@ -2,6 +2,7 @@ package ru.stynyanov.refactoring.servlet;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import ru.stynyanov.refactoring.database.DatabaseManager;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,6 +17,7 @@ public class AddProductServletTest {
 
     @Test
     public void addProductTest() throws Exception {
+        DatabaseManager dbManager = mock(DatabaseManager.class);
         HttpServletRequest request = mock(HttpServletRequest.class);
         ArgumentCaptor<Integer> responseStatus = ArgumentCaptor.forClass(Integer.class);
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -27,7 +29,7 @@ public class AddProductServletTest {
         PrintWriter writer = new PrintWriter(stringWriter);
         when(response.getWriter()).thenReturn(writer);
 
-        new AddProductServlet().doGet(request, response);
+        new AddProductServlet(dbManager).doGet(request, response);
 
         verify(request, atLeast(1)).getParameter("name");
         verify(request, atLeast(1)).getParameter("price");
