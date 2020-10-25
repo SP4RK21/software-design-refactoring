@@ -1,47 +1,24 @@
 package ru.stynyanov.refactoring.servlet;
 
-import ru.stynyanov.refactoring.database.DatabaseManager;
-import ru.stynyanov.refactoring.model.Product;
+import ru.stynyanov.refactoring.model.ProductsDBManager;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 
 public class QueryServlet extends CommonProductServlet {
 
-    public QueryServlet(DatabaseManager databaseManager) {
+    public QueryServlet(ProductsDBManager databaseManager) {
         super(databaseManager);
     }
 
     protected String executeRequest(HttpServletRequest request) {
         String command = request.getParameter("command");
-
-        List<String> products = databaseManager.executeDatabaseQuery(sqlQueryForCommand(command), rs -> {
-            List<String> result = new ArrayList<>();
-            switch (command) {
-                case "sum":
-                case "count":
-                    if (rs.next()) {
-                        result.add(rs.getInt(1) + "\n");
-                    }
-                    break;
-                case "max":
-                case "min":
-                    while (rs.next()) {
-                        Product product = new Product(rs.getString("name"), rs.getInt("price"));
-
-                        result.add(product.name + "\t" + product.price + "</br>\n");
-                    }
-                    break;
-            }
-
-            return result;
-        });
+        List<String> products = databaseManager.getResultForCommand(command);
 
         return "<html><body>\n" + htmlTitleForCommand(command) + String.join("\n", products) + "</body></html>\n";
     }
 
-    private String sqlQueryForCommand(String command) {
+    private String htmlTitleForCommand(String command) {
         switch (command) {
             case "sum":
                 return "Summary price: \n";
@@ -53,21 +30,6 @@ public class QueryServlet extends CommonProductServlet {
                 return "Number of products: \n";
             default:
                 return "Unknown command: " + command + "\n";
-        }
-    }
-
-    private String htmlTitleForCommand(String command) {
-        switch (command) {
-            case "sum":
-                return "SELECT SUM(price) FROM PRODUCT";
-            case "max":
-                return "SELECT * FROM PRODUCT ORDER BY PRICE DESC LIMIT 1";
-            case "min":
-                return "SELECT * FROM PRODUCT ORDER BY PRICE LIMIT 1";
-            case "count":
-                return "SELECT COUNT(*) FROM PRODUCT";
-            default:
-                throw new RuntimeException("Unknown command: " + command);
         }
     }
 

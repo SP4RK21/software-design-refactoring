@@ -1,8 +1,8 @@
 package ru.stynyanov.refactoring.model;
 
 public class Product {
-    public String name;
-    public int price;
+    String name;
+    int price;
 
     public Product(String name, int price) {
         this.name = name;

@@ -1,6 +1,6 @@
 package ru.stynyanov.refactoring.servlet;
 
-import ru.stynyanov.refactoring.database.DatabaseManager;
+import ru.stynyanov.refactoring.model.ProductsDBManager;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -9,9 +9,9 @@ import java.io.IOException;
 
 public abstract class CommonProductServlet extends HttpServlet {
 
-    final DatabaseManager databaseManager;
+    final ProductsDBManager databaseManager;
 
-    CommonProductServlet(DatabaseManager databaseManager) {
+    CommonProductServlet(ProductsDBManager databaseManager) {
         this.databaseManager = databaseManager;
     }
 
