@@ -1,4 +1,4 @@
-package ru.stynyanov.refactoring.model;
+package ru.stynyanov.refactoring.product;
 
 import ru.stynyanov.refactoring.database.DatabaseManager;
 
@@ -37,23 +37,21 @@ public class ProductsDBManager extends DatabaseManager {
 
     public Product getProductResultForCommand(String command) {
         return executeDatabaseQuery(sqlQueryForCommand(command), rs -> {
-            Product result = null;
             if (rs.next()) {
-                result = new Product(rs.getString("name"), rs.getInt("price"));
+                return new Product(rs.getString("name"), rs.getInt("price"));
             }
 
-            return result;
+            return null;
         });
     }
 
     public int getNumericResultForCommand(String command) {
         return executeDatabaseQuery(sqlQueryForCommand(command), rs -> {
-            int result = 0;
             if (rs.next()) {
-                result = rs.getInt(1);
+                return rs.getInt(1);
             }
 
-            return result;
+            return 0;
         });
     }
 

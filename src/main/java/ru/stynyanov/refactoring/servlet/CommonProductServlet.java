@@ -1,6 +1,6 @@
 package ru.stynyanov.refactoring.servlet;
 
-import ru.stynyanov.refactoring.model.ProductsDBManager;
+import ru.stynyanov.refactoring.product.ProductsDBManager;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;

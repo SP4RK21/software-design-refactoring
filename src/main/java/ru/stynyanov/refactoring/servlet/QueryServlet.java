@@ -1,7 +1,8 @@
 package ru.stynyanov.refactoring.servlet;
 
-import ru.stynyanov.refactoring.model.Product;
-import ru.stynyanov.refactoring.model.ProductsDBManager;
+import ru.stynyanov.refactoring.html.HTMLBuilder;
+import ru.stynyanov.refactoring.product.Product;
+import ru.stynyanov.refactoring.product.ProductsDBManager;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -13,34 +14,35 @@ public class QueryServlet extends CommonProductServlet {
 
     protected String executeRequest(HttpServletRequest request) {
         String command = request.getParameter("command");
+        HTMLBuilder htmlBuilder = new HTMLBuilder();
+        htmlBuilder.addHeader(htmlTitleForCommand(command));
 
-        String result;
         if (command.equals("min") || command.equals("max")) {
             Product product = databaseManager.getProductResultForCommand(command);
             if (product != null) {
-                result = product.name + "\t" + product.price + "\n";
+                htmlBuilder.addTextWithNewLine(product.name + "\t" + product.price);
             } else {
-                result = "No products in database";
+                htmlBuilder.addTextWithNewLine("No products in database");
             }
         } else {
-            result = String.valueOf(databaseManager.getNumericResultForCommand(command));
+            htmlBuilder.addTextWithNewLine(String.valueOf(databaseManager.getNumericResultForCommand(command)));
         }
 
-        return "<html><body>\n" + htmlTitleForCommand(command) + result + "</body></html>\n";
+        return htmlBuilder.build();
     }
 
     private String htmlTitleForCommand(String command) {
         switch (command) {
             case "sum":
-                return "Summary price: \n";
+                return "Summary price:";
             case "max":
-                return "<h1>Product with max price: </h1>\n";
+                return "Product with max price:";
             case "min":
-                return "<h1>Product with min price: </h1>\n";
+                return "Product with min price:";
             case "count":
-                return "Number of products: \n";
+                return "Number of products:";
             default:
-                return "Unknown command: " + command + "\n";
+                return "Unknown command: " + command;
         }
     }
 }

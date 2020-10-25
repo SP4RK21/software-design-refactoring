@@ -3,7 +3,7 @@ package ru.stynyanov.refactoring;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import ru.stynyanov.refactoring.model.ProductsDBManager;
+import ru.stynyanov.refactoring.product.ProductsDBManager;
 import ru.stynyanov.refactoring.servlet.AddProductServlet;
 import ru.stynyanov.refactoring.servlet.GetProductsServlet;
 import ru.stynyanov.refactoring.servlet.QueryServlet;
