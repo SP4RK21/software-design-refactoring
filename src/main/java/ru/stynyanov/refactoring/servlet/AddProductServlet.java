@@ -1,6 +1,7 @@
 package ru.stynyanov.refactoring.servlet;
 
 import ru.stynyanov.refactoring.database.DatabaseManager;
+import ru.stynyanov.refactoring.model.Product;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -11,9 +12,8 @@ public class AddProductServlet extends CommonProductServlet {
     }
 
     protected String executeRequest(HttpServletRequest request) {
-        String name = request.getParameter("name");
-        long price = Long.parseLong(request.getParameter("price"));
-        String sql = "INSERT INTO PRODUCT " + "(NAME, PRICE) VALUES (\"" + name + "\"," + price + ")";
+        Product product = new Product(request.getParameter("name"), Integer.parseInt(request.getParameter("price")));
+        String sql = String.format("INSERT INTO PRODUCT (NAME, PRICE) VALUES (\"%s\", \"%d\")", product.name, product.price );
         databaseManager.executeDatabaseUpdate(sql);
 
         return "OK";

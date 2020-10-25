@@ -1,6 +1,7 @@
 package ru.stynyanov.refactoring.servlet;
 
 import ru.stynyanov.refactoring.database.DatabaseManager;
+import ru.stynyanov.refactoring.model.Product;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -16,10 +17,9 @@ public class GetProductsServlet extends CommonProductServlet {
         List<String> products = databaseManager.executeDatabaseQuery("SELECT * FROM PRODUCT", rs -> {
             List<String> result = new ArrayList<>();
             while (rs.next()) {
-                String name = rs.getString("name");
-                int price = rs.getInt("price");
+                Product product = new Product(rs.getString("name"), rs.getInt("price"));
 
-                result.add(name + "\t" + price + "</br>\n");
+                result.add(product.name + "\t" + product.price + "</br>\n");
             }
 
             return result;
